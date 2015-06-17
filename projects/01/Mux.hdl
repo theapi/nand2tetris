@@ -14,8 +14,8 @@ CHIP Mux {
     OUT out;
 
     PARTS:
-    // SEL nand to A nand
-    Nand(a = sel, b = sel, out = selout);
+    // not SEL to A nand
+    Not(in = sel, out = selout);
     Nand(a = a, b = selout, out = aout);
     
     // Sel straight to B
