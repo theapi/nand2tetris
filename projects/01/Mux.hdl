@@ -14,5 +14,13 @@ CHIP Mux {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    // SEL nand to A nand
+    Nand(a = sel, b = sel, out = selout);
+    Nand(a = a, b = selout, out = aout);
+    
+    // Sel straight to B
+    Nand(a = sel, b = b, out = bout); 
+
+    // Nand them together to get the output
+    Nand(a = aout, b = bout, out = out);
 }
