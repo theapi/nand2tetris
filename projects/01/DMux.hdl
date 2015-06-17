@@ -14,5 +14,13 @@ CHIP DMux {
     OUT a, b;
 
     PARTS:
-    // Put your code here:
+    
+    Nand(a = in, b = sel, out = aout, out = selb);
+    // Opposite of each other
+    Not(in = selb, out = bout);
+    
+    // Only show if IN is high
+    And(a = in, b= aout, out = a);
+    And(a = in, b= bout, out = b);
 }
+
