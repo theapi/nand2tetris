@@ -42,5 +42,34 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+   // nostat - ignoring zr & ng for now.
+ 
+    // Handle zx to preset x.
+    // If zx is set then out 0, otherwise whatever x is.
+    Mux16(a=x, b=false, sel=zx, out=x1);
+    
+    // Handle nx.
+    // If nx is set then out !x, , otherwise whatever y is.
+    // Invert all the results of x1.
+    Not16(in=x1, out=notX1);
+    // Now select the inverted bits, otherwise whatever x is.
+    Mux16(a=x1, b=notX1, sel=nx, out=x2);
+    
+    
+    // Handle zy.
+    // If zy is set then out 0, otherwise whatever y is.
+    Mux16(a=y, b=false, sel=zy, out=y1);
+    
+    // Handle ny.
+    // If yx is set then out !y, , otherwise whatever y is.
+    // Invert all the results of y1.
+    Not16(in=y1, out=notY1);
+    // Now select the inverted bits, otherwise whatever y is.
+    Mux16(a=y1, b=notY1, sel=nx, out=y2);
+    
+    // Output x OR y if f == 0, otherwise x AND y.
+    Or16(a=x2, b=y2, out=xORy);
+    And16(a=x2, b=y2, out=xANDy);
+    Mux16(a=xORy, b=xANDy, sel=f, out=out);
+    
 }
