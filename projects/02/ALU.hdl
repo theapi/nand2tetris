@@ -70,7 +70,7 @@ CHIP ALU {
     Mux16(a=y1, b=notY1, sel=ny, out=y2);
     
     
-    // Output x plus y if f == 0, otherwise x AND y.
+    // Output x plus y if f == 1, otherwise x AND y.
     Add16(a=x2, b=y2, out=xPLUSy);
     And16(a=x2, b=y2, out=xANDy);
     Mux16(a=xANDy, b=xPLUSy, sel=f, out=fOut);
