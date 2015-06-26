@@ -65,11 +65,12 @@ CHIP ALU {
     // Invert all the results of y1.
     Not16(in=y1, out=notY1);
     // Now select the inverted bits, otherwise whatever y is.
-    Mux16(a=y1, b=notY1, sel=nx, out=y2);
+    Mux16(a=y1, b=notY1, sel=ny, out=y2);
     
-    // Output x OR y if f == 0, otherwise x AND y.
-    Or16(a=x2, b=y2, out=xORy);
+    
+    // Output x plus y if f == 0, otherwise x AND y.
+    And16(a=x2, b=y2, out=xPLUSy);
     And16(a=x2, b=y2, out=xANDy);
-    Mux16(a=xORy, b=xANDy, sel=f, out=out);
+    Mux16(a=xPLUSy, b=xANDy, sel=f, out=out);
     
 }
