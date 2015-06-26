@@ -78,5 +78,21 @@ CHIP ALU {
     // Handle no
     // if (no == 1) set out = !out 
     Not16(in=fOut, out=notfOut);
-    Mux16(a=fOut, b=notfOut, sel=no, out=out);
+    // split the out into upper & lower bytes for the Or8Way to use
+    // also rember the MSB 
+    Mux16(a=fOut, b=notfOut, sel=no, out[8..15]=noOutUpper, out[0..7]=noOutLower, out[15]=msb);
+    
+    // Handle zr
+    // if (out == 0) set zr = 1
+    // or all the bits looking for a 1
+    Or8Way(in=noOutUpper, out=zrUpper);
+    Or8Way(in=noOutLower, out=zrLower);
+    Or(a=zrUpper, b=zrLower, out=zr);
+    
+    // Handle ng
+    // if (out < 0) set ng = 1
+    // if MSB == 1 then its negative
+    And(a=msb, b=false, out=ng);
+    
+    
 }
