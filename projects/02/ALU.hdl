@@ -49,6 +49,7 @@ CHIP ALU {
     Mux16(a=x, b=false, sel=zx, out=x1);
     
     // Handle nx.
+    // if (nx == 1) set x = !x 
     // If nx is set then out !x, , otherwise whatever y is.
     // Invert all the results of x1.
     Not16(in=x1, out=notX1);
@@ -61,6 +62,7 @@ CHIP ALU {
     Mux16(a=y, b=false, sel=zy, out=y1);
     
     // Handle ny.
+    // if (ny == 1) set y = !y
     // If yx is set then out !y, , otherwise whatever y is.
     // Invert all the results of y1.
     Not16(in=y1, out=notY1);
@@ -69,8 +71,12 @@ CHIP ALU {
     
     
     // Output x plus y if f == 0, otherwise x AND y.
-    And16(a=x2, b=y2, out=xPLUSy);
+    Add16(a=x2, b=y2, out=xPLUSy);
     And16(a=x2, b=y2, out=xANDy);
-    Mux16(a=xPLUSy, b=xANDy, sel=f, out=out);
+    Mux16(a=xANDy, b=xPLUSy, sel=f, out=fOut);
     
+    // Handle no
+    // if (no == 1) set out = !out 
+    Not16(in=fOut, out=notfOut);
+    Mux16(a=fOut, b=notfOut, sel=no, out=out);
 }
