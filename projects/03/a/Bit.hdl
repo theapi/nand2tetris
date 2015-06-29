@@ -14,5 +14,10 @@ CHIP Bit {
     OUT out;
 
     PARTS:
-    // Put your code here:
+   
+    // if load(t–1) then out(t) = in(t–1)
+    // else out(t) = out(t–1)
+    Mux(a=dffOut, b=in, sel=load, out=muxOut);
+    DFF(in=muxOut, out=out, out=dffOut);
+    
 }
