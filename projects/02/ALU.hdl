@@ -42,57 +42,60 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // nostat - ignoring zr & ng for now.
- 
-    // Handle zx to preset x.
+    
+    // Actions must be done in the order given so the resulting calculations work.
+    
+    // Handle zx.
     // If zx is set then out 0, otherwise whatever x is.
-    Mux16(a=x, b=false, sel=zx, out=x1);
+    Mux16(a=x, b=false, sel=zx, out=zxOut);
+
+    // Handle zy.
+    // If zy is set then out 0, otherwise whatever y is.
+    Mux16(a=y, b=false, sel=zy, out=zyOut);
+    
     
     // Handle nx.
     // if (nx == 1) set x = !x 
-    // If nx is set then out !x, , otherwise whatever y is.
-    // Invert all the results of x1.
-    Not16(in=x1, out=notX1);
-    // Now select the inverted bits, otherwise whatever x is.
-    Mux16(a=x1, b=notX1, sel=nx, out=x2);
-    
-    
-    // Handle zy.
-    // If zy is set then out 0, otherwise whatever y is.
-    Mux16(a=y, b=false, sel=zy, out=y1);
+    // If nx is set then out !x, , otherwise whatever zxOut is.
+    // Invert all the results of zxOut.
+    Not16(in=zxOut, out=notzxOut);
+    // Now select the inverted bits, otherwise whatever zxOut is.
+    Mux16(a=zxOut, b=notzxOut, sel=nx, out=nxOut);
     
     // Handle ny.
     // if (ny == 1) set y = !y
-    // If yx is set then out !y, , otherwise whatever y is.
-    // Invert all the results of y1.
-    Not16(in=y1, out=notY1);
-    // Now select the inverted bits, otherwise whatever y is.
-    Mux16(a=y1, b=notY1, sel=ny, out=y2);
+    // If yx is set then out !y, , otherwise whatever zyOut is.
+    // Invert all the results of zyOut.
+    Not16(in=zyOut, out=notzyOut);
+    // Now select the inverted bits, otherwise whatever zyOut is.
+    Mux16(a=zyOut, b=notzyOut, sel=ny, out=nyOut);
     
     
     // Output x plus y if f == 1, otherwise x AND y.
-    Add16(a=x2, b=y2, out=xPLUSy);
-    And16(a=x2, b=y2, out=xANDy);
+    Add16(a=nxOut, b=nyOut, out=xPLUSy);
+    And16(a=nxOut, b=nyOut, out=xANDy);
     Mux16(a=xANDy, b=xPLUSy, sel=f, out=fOut);
+    
     
     // Handle no
     // if (no == 1) set out = !out 
     Not16(in=fOut, out=notfOut);
     // split the out into upper & lower bytes for the Or8Way to use
     // also rember the MSB 
-    Mux16(a=fOut, b=notfOut, sel=no, out[8..15]=noOutUpper, out[0..7]=noOutLower, out[15]=msb);
+    Mux16(a=fOut, b=notfOut, sel=no, out=out, out[8..15]=noOutUpper, out[0..7]=noOutLower, out[15]=msb);
+    
     
     // Handle zr
     // if (out == 0) set zr = 1
     // or all the bits looking for a 1
     Or8Way(in=noOutUpper, out=zrUpper);
     Or8Way(in=noOutLower, out=zrLower);
-    Or(a=zrUpper, b=zrLower, out=zr);
+    Or(a=zrUpper, b=zrLower, out=zrOr);
+    Not(in=zrOr, out=zr);
     
     // Handle ng
     // if (out < 0) set ng = 1
     // if MSB == 1 then its negative
-    And(a=msb, b=false, out=ng);
-    
-    
+    Or(a=msb, b=false, out=ng);
+
 }
