@@ -15,5 +15,43 @@ CHIP RAM4K {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    
+        /*
+     DMux8Way 
+      IN in, sel[3];
+      OUT a, b, c, d, e, f, g, h;
+     */
+     // Demux the 3 most signifacant bits to figure out which RAM64 to use.
+     DMux8Way(
+       in=load, sel=address[9..11], 
+       a=loadA, b=loadB, c=loadC, d=loadD,
+       e=loadE, f=loadF, g=loadG, h=loadH
+     );
+     
+    
+    /*
+    RAM64 
+    IN in[16], load, address[6];
+    OUT out[16];
+    */
+    // Let the RAM64 handle the regeisters they control.
+    RAM512(in=in, load=loadA, address=address[0..8], out=outA);
+    RAM512(in=in, load=loadB, address=address[0..8], out=outB);
+    RAM512(in=in, load=loadC, address=address[0..8], out=outC);
+    RAM512(in=in, load=loadD, address=address[0..8], out=outD);
+    RAM512(in=in, load=loadE, address=address[0..8], out=outE);
+    RAM512(in=in, load=loadF, address=address[0..8], out=outF);
+    RAM512(in=in, load=loadG, address=address[0..8], out=outG);
+    RAM512(in=in, load=loadH, address=address[0..8], out=outH);
+    
+    // Mux the outs together
+    /*
+    Mux8Way16 
+    IN a[16], b[16], c[16], d[16],
+       e[16], f[16], g[16], h[16],
+       sel[3];
+    OUT out[16]
+    */
+    Mux8Way16(a=outA, b=outB, c=outC, d=outD, e=outE, f=outF, g=outG, h=outH, sel=address[9..11], out=out);
+    
 }
