@@ -16,5 +16,41 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // Do the incremental first so it can be muxed away if not wanted.
+    // Then do the load to feed into the reset mux.
+    
+    
+    /*
+    Inc16 
+    IN in[16];
+    OUT out[16];
+    */
+    // else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+    Inc16(in=regOut, out=incremented);
+    Mux16(a=regOut, b=incremented, sel=inc, out=incOut);
+    
+    
+    // else if (load[t] == 1)  out[t+1] = in[t]
+    Mux16(a=incOut, b=in, sel=load, out=loadOut);
+    
+    
+    /*
+    Mux16 
+    IN a[16], b[16], sel;
+    OUT out[16];
+    */
+    // if      (reset[t] == 1) out[t+1] = 0
+    Mux16(a=loadOut, b=false, sel=reset, out=resetOut);
+    
+    
+       
+    /*
+    Register 
+    IN in[16], load;
+    OUT out[16];
+    */
+    // Now apply the result to the register
+    Register(in=resetOut, load=true, out=regOut, out=out);
+
 }
+
