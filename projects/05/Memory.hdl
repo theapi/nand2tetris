@@ -27,5 +27,70 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    
+    // 15 bit addresses:
+    
+    // RAM16K
+    // 000 0000 0000 0000 to
+    // 011 1111 1111 1111
+    
+    // Screen
+    // 100 0000 0000 0000 to
+    // 101 1111 1111 1111
+    
+    // Keyboard
+    // 110 0000 0000 0000
+    
+    
+    // if (address[15] == 0 && address[14] == 0): RAM16K
+    // if (address[15] == 0 && address[14] == 1): RAM16K
+    // if (address[15] == 1 && address[14] == 0): Screen
+    // if (address[15] == 1 && address[14] == 1): Keyboard
+    // 00
+    // 01
+    // 10
+    // 11
+    
+    
+    /**
+     * 4-way demultiplexor:
+     * {a, b, c, d} = {in, 0, 0, 0} if sel == 00
+     *                {0, in, 0, 0} if sel == 01
+     *                {0, 0, in, 0} if sel == 10
+     *                {0, 0, 0, in} if sel == 11
+     */
+    DMux4Way(in=load, sel=address[13..14], a=loadRamA, b=loadRamB, c=loadScreen, d=loadKbd);
+    
+    /*
+     RAM16K
+     IN in[16], load, address[14];
+     OUT out[16];
+    */
+    RAM16K(in=in, load=loadRamA, address=address[0..13], out=ramaOut);
+    RAM16K(in=in, load=loadRamB, address=address[0..13], out=rambOut);
+    
+    /*
+     Screen 
+     IN  in[16],    // what to write
+     load,          // write-enable bit
+     address[13];   // where to read/write
+     OUT out[16];   // Screen value at the given address
+    */
+    Screen(in=in, load=loadScreen, address=address[0..12], out=screenOut);
+    
+    /*
+     Keyboard
+     OUT out[16];
+    */
+    Keyboard(out=keyboardOut);
+    
+    
+    /**
+     * 4-way 16-bit multiplexor:
+     * out = a if sel == 00
+     *       b if sel == 01
+     *       c if sel == 10
+     *       d if sel == 11
+     */
+    Mux4Way16(a=ramaOut, b=rambOut, c=screenOut, d=keyboardOut, sel=address[13..14], out=out);
 }
