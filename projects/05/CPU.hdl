@@ -55,16 +55,16 @@ CHIP CPU {
     // IN  a[16], b[16], sel;
     // OUT out[16];
     // If sel == 1 then out = b else out = a.
-    Mux16(a=instruction, b=inM, sel=selA, out=inA);
+    Mux16(a=instruction, b=inM, sel=selA, out=inA, out[0..14]=addressM);
     
-    ARegister(in=inA, load=true, out=addressM);
+    ARegister(in=inA, load=true, out=outA);
     
     
 // A/M into the ALU
   
     // If bit[12], the "a" bit is 1 then use M (inM) otherwise use A register content.
     // If sel == 1 then out = b else out = a.
-    Mux16(a=addressM, b=inM, sel=instruction[12], out=inAM);
+    Mux16(a=outA, b=inM, sel=instruction[12], out=inAM);
     
     
 // D REGISTER
@@ -78,7 +78,7 @@ CHIP CPU {
     ALU(
         x=outD, y=inAM,
         zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6],
-        out=outM, out=inD,
+        out=outM, out=inD, out=outAlu,
         zr=zr, ng=ng
     );
     
@@ -88,8 +88,37 @@ CHIP CPU {
     // "j1" is instruction[2]
     // "j2" is instruction[1]
     // "j0" is instruction[0]
+    
+    // if out > 0
+    Or(a=zr, b=ng, out=ngOrZr);
+    Not(in=ngOrZr, out=JGT);
+    
+    // if out == 0
+    // if zr == 1
+    And(a=zr, b=true, out=JEQ);
+    
+    // if out >= 0
+    Or(a=JGT, b=JEQ, out=JGE);
 
+    // if out < 0
+    // if ng == 1
+    And(a=ng, b=true, out=JLT);
+    
+    // if out != 0
+    Not(in=JEQ, out=notJEQ);
+    And(a=notJEQ, b=true, out=JNE);
+    
+    // if out <= 0
+    Or(a=JLT, b=JEQ, out=JLE);
+    
+    Mux8Way16(a=false, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=true, sel=instruction[0..3], out=jump);
 
-    PC(in=inPc, inc=, load=, reset=reset, out=pc);
+    // Increment if not jumping
+    Not(in=jump, out=increment);
+
+    // Which address to use
+    Mux16(a=outA, b=outAlu, sel=jump, out=inPc);
+    
+    PC(in=inPc, inc=increment, load=jump, reset=reset, out=pc);
     
 }
