@@ -39,5 +39,57 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    
+// A REGISTER
+  
+    // Decide what goes into the A register
+    // Choose between the output of the ALU and the out of the program counter
+    
+    // If MSB of instruction == 0 then the A register must be set with the 15 bit remaining value.
+    // Else if the "d1" bit of the instruction is set then store the value of outM in the A register.
+    
+    // if instruction[15] and instruction[5] == store outM in A
+    // else store the instruction in A
+    And(a=instruction[15], b=instruction[5], out=selA);
+    
+    // IN  a[16], b[16], sel;
+    // OUT out[16];
+    // If sel == 1 then out = b else out = a.
+    Mux16(a=instruction, b=inM, sel=selA, out=inA);
+    
+    ARegister(in=inA, load=true, out=addressM);
+    
+    
+// A/M into the ALU
+  
+    // If bit[12], the "a" bit is 1 then use M (inM) otherwise use A register content.
+    // If sel == 1 then out = b else out = a.
+    Mux16(a=addressM, b=inM, sel=instruction[12], out=inAM);
+    
+    
+// D REGISTER
+
+    // If bit[4] "d2" is 1 then store ALU out in the D register
+    DRegister(in=inD, load=instruction[4], out=outD);
+    
+    
+// ALU
+
+    ALU(
+        x=outD, y=inAM,
+        zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6],
+        out=outM, out=inD,
+        zr=zr, ng=ng
+    );
+    
+    
+// PROGRAM COUNTER
+    // if no jump then inPc = addressM
+    // "j1" is instruction[2]
+    // "j2" is instruction[1]
+    // "j0" is instruction[0]
+
+
+    PC(in=inPc, inc=, load=, reset=reset, out=pc);
+    
 }
