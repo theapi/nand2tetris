@@ -83,7 +83,9 @@ CHIP CPU {
 // D REGISTER
 
     // If bit[4] "d2" is 1 then store ALU out in the D register
-    DRegister(in=inD, load=instruction[4], out=outD);
+    // And is a C instruction
+    And(a=instruction[15], b=instruction[4], out=loadD);
+    DRegister(in=inD, load=loadD, out=outD);
     
     
 // ALU
