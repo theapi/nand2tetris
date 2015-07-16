@@ -127,14 +127,18 @@ CHIP CPU {
     Mux8Way16(
         a=false, b[1..15]=false, b[0]=JGT, c[1..15]=false, c[0]=JEQ, d[1..15]=false, d[0]=JGE, 
         e[1..15]=false, e[0]=JLT, f[1..15]=false, f[0]=JNE, g[1..15]=false, g[0]=JLE, h=true, 
-        sel=instruction[0..2], out[0]=jump
+        sel=instruction[0..2], out[0]=potentialJump
     );
 
+    // Only jump if a C instruction
+    And(a=instruction[15], b=potentialJump, out=jump);
+    
     // Increment if not jumping
     Not(in=jump, out=increment);
 
     // Which address to use
-    Mux16(a=outA, b=outAlu, sel=jump, out=inPc);
+    //Mux16(a=outA, b=outAlu, sel=jump, out=inPc);
+    Mux16(a=outAlu, b=outA, sel=jump, out=inPc);
     
     PC(in=inPc, inc=increment, load=jump, reset=reset, out[0..14]=pc);
     
