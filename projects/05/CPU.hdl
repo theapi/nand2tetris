@@ -111,7 +111,11 @@ CHIP CPU {
     // if out <= 0
     Or(a=JLT, b=JEQ, out=JLE);
     
-    Mux8Way16(a=false, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=true, sel=instruction[0..3], out=jump);
+    Mux8Way16(
+        a=false, b[1..15]=false, b[0]=JGT, c[1..15]=false, c[0]=JEQ, d[1..15]=false, d[0]=JGE, 
+        e[1..15]=false, e[0]=JLT, f[1..15]=false, f[0]=JNE, g[1..15]=false, g[0]=JLE, h=true, 
+        sel=instruction[0..2], out[0]=jump
+    );
 
     // Increment if not jumping
     Not(in=jump, out=increment);
@@ -119,6 +123,6 @@ CHIP CPU {
     // Which address to use
     Mux16(a=outA, b=outAlu, sel=jump, out=inPc);
     
-    PC(in=inPc, inc=increment, load=jump, reset=reset, out=pc);
+    PC(in=inPc, inc=increment, load=jump, reset=reset, out=outPC);
     
 }
