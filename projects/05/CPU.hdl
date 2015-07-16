@@ -50,26 +50,28 @@ CHIP CPU {
     
     // if instruction[15] and instruction[5] == store outM in A
     // else store the instruction in A
-    And(a=instruction[15], b=instruction[5], out=selA);
+    And(a=instruction[15], b=instruction[5], out=CsetA, out=selA);
+    
+    // Check for an A instruction
+    Nand(a=instruction[15], b=true, out=AsetA);
+    
+    // Whether to load the A register
+    Or(a=AsetA, b=CsetA, out=loadA);
+    
     
     // IN  a[16], b[16], sel;
     // OUT out[16];
     // If sel == 1 then out = b else out = a.
-    Mux16(a=instruction, b=inM, sel=selA, out=inA);
+    Mux16(a=instruction, b=outAlu1, sel=selA, out=inA);
     
-    ARegister(in=inA, load=true, out=outA, out[0..14]=addressM);
+    ARegister(in=inA, load=loadA, out=outA, out[0..14]=addressM);
     
     
 // writeM
 
     // if d3 (instruction[3]) == 1 and instruction[15] == 1 (C instruction) then write to M
     And(a=instruction[3], b=instruction[15], out=writeM, out=selAddressM);
-    
-    
-// addressM
-    // if writeM then set to the what was entered into the A register
-    //Mux16(a=inM, b=inA, sel=selAddressM, out[0..14]=addressM);
-    
+       
     
 // A/M into the ALU
   
@@ -89,7 +91,7 @@ CHIP CPU {
     ALU(
         x=outD, y=inAM,
         zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6],
-        out=outM, out=inD, out=outAlu,
+        out=outM, out=inD, out=outAlu, out=outAlu1,
         zr=zr, ng=ng
     );
     
@@ -134,6 +136,6 @@ CHIP CPU {
     // Which address to use
     Mux16(a=outA, b=outAlu, sel=jump, out=inPc);
     
-    PC(in=inPc, inc=increment, load=jump, reset=reset, out[1..15]=pc);
+    PC(in=inPc, inc=increment, load=jump, reset=reset, out[0..14]=pc);
     
 }
