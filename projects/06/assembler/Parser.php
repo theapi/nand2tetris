@@ -30,6 +30,7 @@ class Parser
     $this->last_command = count($this->commands) - 1;
 
     $this->symbols = new SymbolTable();
+    // First pass get all the labels (LOOP) etc.
     $this->parseLcommands();
   }
 
@@ -94,10 +95,6 @@ class Parser
         break;
 
       case 'C_COMMAND':
-        $this->parsed[] = $this->parseCcommand() . "\n";
-        break;
-
-      case 'L_COMMAND':
         $this->parsed[] = $this->parseCcommand() . "\n";
         break;
 
