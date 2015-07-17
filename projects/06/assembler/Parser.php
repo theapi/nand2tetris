@@ -15,6 +15,9 @@ class Parser
 
   protected $last_command = 0;
 
+  // The SymbolTable
+  protected $symbols;
+
   public function __construct($file)
   {
     // Read the file and ignore empty lines.
@@ -24,7 +27,11 @@ class Parser
     $this->hack_file = str_replace('.asm', '.hack', $file);
 
     $this->removeComments();
+
+    $this->symbols = new SymbolTable();
+
     $this->last_command = count($this->commands) - 1;
+
 
   }
 
@@ -151,7 +158,17 @@ class Parser
   {
     $cmd = $this->commands[$this->current_command];
     // remove the @ as the first character.
-    return substr($cmd, 1);
+    $symbol = substr($cmd, 1);
+    if (is_numeric($symbol)) {
+        // Already an address.
+        return $symbol;
+    }
+
+    if ($this->symbols->contains($symbol)) {
+        return $this->symbols->getAddress($symbol);
+    }
+
+    return $this->symbols->addEntry($symbol);
   }
 
 
