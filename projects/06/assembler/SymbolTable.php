@@ -28,6 +28,11 @@ class SymbolTable
 
     }
 
+    public function getSymbols()
+    {
+        return $this->symbols;
+    }
+
     /**
      * Adds the pair to the table, generates an address if needed.
      */

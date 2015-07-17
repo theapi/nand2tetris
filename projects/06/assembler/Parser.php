@@ -26,22 +26,24 @@ class Parser
     }
     $this->hack_file = str_replace('.asm', '.hack', $file);
 
-    $this->removeComments();
-
-    $this->symbols = new SymbolTable();
-
+    $this->removeWhitespace();
     $this->last_command = count($this->commands) - 1;
 
-
+    $this->symbols = new SymbolTable();
+    $this->parseLcommands();
   }
 
   /**
-   * Remove comments.
+   * Remove comments & whitespace.
    */
-  protected function removeComments()
+  protected function removeWhitespace()
   {
     $remove = array();
     foreach ($this->commands as $i => $line) {
+      $line = trim($line);
+      // Store the trimmed line.
+      $this->commands[$i] = $line;
+
       $pos = strpos($line, '/');
       if ($pos !== false) {
         $cmd = substr($line, 0, $pos);
@@ -62,6 +64,20 @@ class Parser
     // Renumber the index, so the program counter knows what's what.
     $this->commands = array_merge($this->commands, array());
 
+  }
+
+  protected function parseLcommands()
+  {
+      $this->current_command = 0;
+
+      while ($this->hasMoreCommands()) {
+          if ($this->commandType() == 'L_COMMAND') {
+              $this->parseLcommand();
+          }
+          $this->advance();
+      }
+
+      $this->current_command = 0;
   }
 
   public function output()
@@ -107,7 +123,27 @@ class Parser
 
   protected function parseLcommand()
   {
+      $cmd = $this->commands[$this->current_command];
 
+      $pos = strpos($cmd, ')');
+      if ($pos === false) {
+          throw new Exception("Syntax error: expected ) in $cmd, line " . __LINE__);
+      }
+      $symbol = substr($cmd, 1, $pos - 1);
+      if ($this->symbols->contains($symbol)) {
+        throw new Exception("Label already exists $symbol, line " . __LINE__);
+      }
+
+      $address = $this->current_command;
+      $this->symbols->addEntry($symbol, $address);
+
+      // Remove the label pseudo command & renumber the commands.
+      unset($this->commands[$this->current_command]);
+      $this->commands = array_merge($this->commands, array());
+
+      // Reduce the current command number as this wasn't really a command.
+      $this->current_command--;
+      $this->last_command--;
   }
 
   /**
