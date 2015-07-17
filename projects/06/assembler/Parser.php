@@ -2,30 +2,32 @@
 
 class Parser
 {
-  
+
   // The lines of the .asm file, with empty lines skipped & newlines removed.
   protected $commands = array();
-  
+
   protected $parsed = array();
-  
+
+  protected $hack_file = '';
+
   // The command being parsed.
   protected $current_command = 0;
-  
+
   protected $last_command = 0;
-  
-  public function __construct($file) 
+
+  public function __construct($file)
   {
     // Read the file and ignore empty lines.
     if (!$this->commands = file($file, FILE_USE_INCLUDE_PATH | FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)) {
-      throw new Exception("Failed to read file: $file\n"); 
+      throw new Exception("Failed to read file: $file\n");
     }
-    
+    $this->hack_file = str_replace('.asm', '.hack', $file);
+
     $this->removeComments();
     $this->last_command = count($this->commands) - 1;
-    
-    //var_dump($this->num_commands);
+
   }
-  
+
   /**
    * Remove comments.
    */
@@ -45,87 +47,73 @@ class Parser
         }
       }
     }
-    
+
     foreach ($remove as $i) {
-      unset($this->commands[$i]); 
+      unset($this->commands[$i]);
     }
-    
-    // Renumber the index, so the program counter knows what's what. 
+
+    // Renumber the index, so the program counter knows what's what.
     $this->commands = array_merge($this->commands, array());
-    
+
   }
-  
-  /**
-   * Run the parser.
-   */
-  public function parse()
+
+  public function output()
   {
-    // parse current line
-    $this->parsed[] = $this->parseLine();
-    
-    if ($this->hasMoreCommands()) {
-      $this->advance();
-      $this->parse();
-    } else {
-      // Finished parsing.
-      $this->output();
-    }
+      file_put_contents($this->hack_file, $this->parsed);
   }
-  
-  protected function output()
-  {
-    var_dump($this->parsed);
-  }
-  
-  protected function parseLine()
+
+  public function parseLine()
   {
     $type = $this->commandType();
     switch ($type) {
       case 'A_COMMAND':
-        return $this->parseAcommand();
-        
+        $this->parsed[] = $this->parseAcommand() . "\n";
+        break;
+
       case 'C_COMMAND':
-        return $this->parseCcommand();
-        
+        $this->parsed[] = $this->parseCcommand() . "\n";
+        break;
+
       case 'L_COMMAND':
-        return $this->parseCcommand();
-        
+        $this->parsed[] = $this->parseCcommand() . "\n";
+        break;
+
       default:
         // Shouldn't get here. throw error error?
         return;
     }
 
   }
-  
+
   protected function parseAcommand()
   {
     return sprintf( "%016d", decbin($this->symbol()));
   }
-  
+
   protected function parseCcommand()
   {
     $dest = Code::dest($this->dest());
-    $comp = Code::comp($this->comp()); 
+    $comp = Code::comp($this->comp());
     $jump = Code::jump($this->jump());
     return '111' . $comp . $dest . $jump;
   }
-  
+
   protected function parseLcommand()
   {
-    
+
   }
-  
+
   /**
    * Are there any more commands in the input?
-   */ 
-  public function hasMoreCommands() 
+   */
+  public function hasMoreCommands()
   {
     if ($this->current_command == $this->last_command) {
-      return false; 
+      return false;
     }
     return true;
   }
-  
+
   /**
    * Read the next command and make it current.
    */
@@ -133,7 +121,7 @@ class Parser
   {
     $this->current_command++;
   }
-  
+
   /**
    * A, C or "L" command.
    */
@@ -145,17 +133,17 @@ class Parser
       case '@':
         return 'A_COMMAND';
         break;
-        
+
       case '(':
         return 'L_COMMAND';
         break;
-        
+
       default:
         return 'C_COMMAND';
         break;
     }
   }
-  
+
   /**
    * The value of the A command.
    */
@@ -163,32 +151,33 @@ class Parser
   {
     $cmd = $this->commands[$this->current_command];
     // remove the @ as the first character.
-    return substr($cmd, 1); 
+    return substr($cmd, 1);
   }
-  
-  
+
+
   protected function deconstructCcommand($part)
   {
-    $cmd = $this->commands[$this->current_command]; 
-    $parts = explode('=', $cmd); 
+    $cmd = $this->commands[$this->current_command];
+    $parts = explode('=', $cmd);
     if ($part == 'dest') {
       return trim($parts[0]);
     }
-    
-    $sub_parts = explode(';', $parts[1]);
+
+    $comp = isset($parts[1]) ? $parts[1] : $parts[0];
+    $sub_parts = explode(';', $comp);
     if ($part == 'comp') {
       return trim($sub_parts[0]);
     }
     if ($part == 'jump') {
       if (isset($sub_parts[1])) {
         return trim($sub_parts[1]);
-      } 
+      }
     }
-    
+
     return 'null';
   }
-  
-  
+
+
   /**
    * The destination mnemonic (MD etc).
    */
@@ -196,7 +185,7 @@ class Parser
   {
     return $this->deconstructCcommand('dest');
   }
-  
+
   /**
    * The comp mnemonic (D=M etc).
    */
@@ -204,7 +193,7 @@ class Parser
   {
     return $this->deconstructCcommand('comp');
   }
-  
+
     /**
    * The jump mnemonic (JMP etc).
    */
@@ -212,6 +201,6 @@ class Parser
   {
     return $this->deconstructCcommand('jump');
   }
-  
+
 }
 

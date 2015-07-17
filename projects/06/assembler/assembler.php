@@ -10,11 +10,17 @@ if (empty($argv[1])) {
 }
 
 try {
-  
-  $parser = new Parser($argv[1]);
-  $parser->parse();
-  
-} catch(Exception $e) {
-  echo $e->getMessage() . "\n"; 
-}
 
+  $parser = new Parser($argv[1]);
+  $parser->parseLine();
+  while ($parser->hasMoreCommands()) {
+      $parser->advance();
+      $parser->parseLine();
+  }
+
+  // Finished parsing.
+  $parser->output();
+
+} catch(Exception $e) {
+  echo $e->getMessage() . "\n";
+}
