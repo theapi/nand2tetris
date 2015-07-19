@@ -12,7 +12,7 @@ class Parser
 
     public function __construct($file)
     {
-        // Open the first file for reading.
+        // Open the file for reading.
         if (!$this->fp = fopen($file, "r")) {
             throw new Exception("unable to open input file: $file.");
         }
@@ -127,6 +127,11 @@ class Parser
     {
         $parts = explode(' ', $this->cmd);
         return $parts[2];
+    }
+
+    public function close()
+    {
+        fclose($this->fp);
     }
 
 }

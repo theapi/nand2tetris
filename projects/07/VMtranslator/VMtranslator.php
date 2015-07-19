@@ -32,7 +32,7 @@ class VMtranslator
         } else if (is_dir($file)) {
             $this->dir = $file;
             $this->is_dir = true;
-            $output_file = $this->dir . '/' . $this->dir . '.asm';
+            $output_file = $this->dir . '/' . basename($this->dir) . '.asm';
 
             // Read the directory for .vm files
             foreach (glob($this->dir . '/*.vm') as $filename) {
@@ -75,6 +75,9 @@ class VMtranslator
           }
 
         }
+        $parser->close();
+
+        $this->writer->close();
     }
 
     protected function setNextFile()
