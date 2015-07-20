@@ -144,6 +144,27 @@ class CodeWriter
         // There is no pop constant.
     }
 
+    protected function writePopSegment($label, $index)
+    {
+        // Find where to store the value.
+        $this->writeLine('@' . $index);
+        $this->writeLine('D=A    // Store the index value in D');
+        $this->writeLine("@$label   // set address to $label");
+        $this->writeLine("D=D+M  // store the address of $label + index in D");
+
+        $this->writeLine('@R13  // temp store the address');
+        $this->writeLine('M=D   // store the address in R13');
+
+        $this->writePop();
+        // M now countains what was popped off the stack.
+        $this->writeLine('D=M   // store the value in D');
+
+        $this->writeLine('@R13  // R13 address');
+        $this->writeLine('A=M   // use the value stored in R13 as the next address');
+        $this->writeLine('M=D   // store the value at the address');
+        $this->writeLine("");
+    }
+
     /**
      * push/pop local
      */
@@ -154,18 +175,7 @@ class CodeWriter
 
         } else {
             // Pop the top of the stack & store it in local[index]
-
-            // Find where to store the value.
-            $this->writeLine('@' . $index);
-            $this->writeLine('D=A    // Store the index value in D');
-            $this->writeLine('@LCL   // set address to LCL');
-            $this->writeLine('D=D+M  // store the address of LCL + index in D');
-
-            $this->writePop();
-            // M now countains what was popped off the stack.
-            $this->writeLine('A=D   // set the address to LCL + index');
-            $this->writeLine('M=D   // store the value at the address');
-            $this->writeLine("");
+            $this->writePopSegment('LCL', $index);
         }
     }
 
@@ -180,18 +190,7 @@ class CodeWriter
 
         } else {
             // Pop the top of the stack & store it in argument[index]
-
-            // Find where to store the value.
-            $this->writeLine('@' . $index);
-            $this->writeLine('D=A    // Store the index value in D');
-            $this->writeLine('@ARG   // set address to ARG');
-            $this->writeLine('D=D+M  // store the address of ARG + index in D');
-
-            $this->writePop();
-            // M now countains what was popped off the stack.
-            $this->writeLine('A=D   // set the address to ARG + index');
-            $this->writeLine('M=D   // store the value at the address');
-            $this->writeLine("");
+            $this->writePopSegment('ARG', $index);
         }
     }
 

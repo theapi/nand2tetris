@@ -29,7 +29,7 @@ D=A
 M=D
 
 // constant
-@10
+@21
 D=A   // Store the numeric value in D
 
 // PUSH
@@ -39,11 +39,22 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
-// local
-@0
+// constant
+@22
+D=A   // Store the numeric value in D
+
+// PUSH
+@SP
+A=M   // set the address to where the SP is pointing
+M=D   // store the value in the stack
+@SP
+M=M+1 // Advance the stack pointer
+
+// argument
+@2
 D=A    // Store the index value in D
-@LCL   // set address to LCL
-D=D+M  // store the address of LCL + index in D
+@ARG   // set address to ARG
+D=D+M  // store the address of ARG + index in D
 @R13  // temp store the address
 M=D   // store the address in R13
 // POP
@@ -56,22 +67,11 @@ D=M   // store the value in D
 A=M   // use the value stored in R13 as the next address
 M=D   // store the value at the address
 
-// constant
-@42
-D=A   // Store the numeric value in D
-
-// PUSH
-@SP
-A=M   // set the address to where the SP is pointing
-M=D   // store the value in the stack
-@SP
-M=M+1 // Advance the stack pointer
-
-// local
-@2
+// argument
+@1
 D=A    // Store the index value in D
-@LCL   // set address to LCL
-D=D+M  // store the address of LCL + index in D
+@ARG   // set address to ARG
+D=D+M  // store the address of ARG + index in D
 @R13  // temp store the address
 M=D   // store the address in R13
 // POP
