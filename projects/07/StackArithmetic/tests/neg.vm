@@ -1,0 +1,5 @@
+
+// neg
+push constant 9
+push constant 6
+neg
