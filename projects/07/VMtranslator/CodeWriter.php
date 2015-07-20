@@ -151,9 +151,7 @@ class CodeWriter
     {
         $this->writeLine('// local');
         if ($command == 'C_PUSH') {
-            // @todo ...
-            $this->writeLine("");
-            $this->writePush();
+
         } else {
             // Pop the top of the stack & store it in local[index]
 
@@ -179,12 +177,21 @@ class CodeWriter
         $this->writeLine('// argument');
         if ($command == 'C_PUSH') {
             // @todo ...
-            $this->writeLine("");
-            $this->writePush();
+
         } else {
-            // @todo ...
-            $this->writeLine("");
+            // Pop the top of the stack & store it in argument[index]
+
+            // Find where to store the value.
+            $this->writeLine('@' . $index);
+            $this->writeLine('D=A    // Store the index value in D');
+            $this->writeLine('@ARG   // set address to ARG');
+            $this->writeLine('D=D+M  // store the address of ARG + index in D');
+
             $this->writePop();
+            // M now countains what was popped off the stack.
+            $this->writeLine('A=D   // set the address to ARG + index');
+            $this->writeLine('M=D   // store the value at the address');
+            $this->writeLine("");
         }
     }
 
