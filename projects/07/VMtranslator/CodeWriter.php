@@ -146,22 +146,32 @@ class CodeWriter
 
     protected function writePopSegment($label, $index)
     {
-        // Find where to store the value.
-        $this->writeLine('@' . $index);
-        $this->writeLine('D=A    // Store the index value in D');
-        $this->writeLine("@$label   // set address to $label");
-        $this->writeLine("D=D+M  // store the address of $label + index in D");
+        if ($index == 0) {
+            // No need to waste cycles looking for base + index address.
+            $this->writePop();
+            // M now countains what was popped off the stack.
+            $this->writeLine('D=M   // store popped value in D');
+            $this->writeLine("@$label   // set address to $label");
+            $this->writeLine("A=M   // use the value stored in $label as the next address");
+            $this->writeLine('M=D   // store the value at the address');
+        } else {
+            // Find where to store the value.
+            $this->writeLine('@' . $index);
+            $this->writeLine('D=A    // Store the index value in D');
+            $this->writeLine("@$label   // set address to $label");
+            $this->writeLine("D=D+M  // store the address of $label + index in D");
 
-        $this->writeLine('@R13  // temp store the address');
-        $this->writeLine('M=D   // store the address in R13');
+            $this->writeLine('@R13  // temp store the address');
+            $this->writeLine('M=D   // store the address in R13');
 
-        $this->writePop();
-        // M now countains what was popped off the stack.
-        $this->writeLine('D=M   // store the value in D');
+            $this->writePop();
+            // M now countains what was popped off the stack.
+            $this->writeLine('D=M   // store the value in D');
 
-        $this->writeLine('@R13  // R13 address');
-        $this->writeLine('A=M   // use the value stored in R13 as the next address');
-        $this->writeLine('M=D   // store the value at the address');
+            $this->writeLine('@R13  // R13 address');
+            $this->writeLine('A=M   // use the value stored in R13 as the next address');
+            $this->writeLine('M=D   // store the value at the address');
+        }
         $this->writeLine("");
     }
 

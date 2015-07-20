@@ -40,20 +40,14 @@ M=D   // store the value in the stack
 M=M+1 // Advance the stack pointer
 
 // local
-@0
-D=A    // Store the index value in D
-@LCL   // set address to LCL
-D=D+M  // store the address of LCL + index in D
-@R13  // temp store the address
-M=D   // store the address in R13
 // POP
 @SP
 M=M-1  // decrement (pop) the stack pointer
 A=M    // set the address to where the SP is pointing
 
-D=M   // store the value in D
-@R13  // R13 address
-A=M   // use the value stored in R13 as the next address
+D=M   // store popped value in D
+@LCL   // set address to LCL
+A=M   // use the value stored in LCL as the next address
 M=D   // store the value at the address
 
 // constant
