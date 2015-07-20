@@ -66,25 +66,23 @@ class CodeWriter
 
     public function writePushPop($command, $segment, $index)
     {
-
-        if ($command == 'C_POP') {
-            $this->writePop();
-        }
-
-        $asm = '';
         switch ($segment) {
             case 'constant':
-                $asm .= '// constant' . "\n";
-                $asm .= '@' . $index . "\n";
-                $asm .= 'D=A   // Store the numeric value in D'. "\n\n";
+                $this->writePushPopConstant($command, $index);
+                break;
+            case 'local':
+                $this->writePushPopLocal($command, $index);
+                break;
+            case 'argument':
+                $this->writePushPopArgument($command, $index);
+                break;
+            case 'this':
+                $this->writePushPopThis($command, $index);
+                break;
+            case 'that':
+                $this->writePushPopThat($command, $index);
                 break;
         }
-        $this->write($asm);
-
-        if ($command == 'C_PUSH') {
-            $this->writePush();
-        }
-
     }
 
     public function close()
@@ -93,14 +91,127 @@ class CodeWriter
     }
 
     protected function writeInit()
-    { //return; // not yet
-        $this->writeLine('// init to SP pointing to 256');
+    {
+        // set the same memory locations as BasicTestVME.tst
+        $this->writeLine('// init SP pointing to 256');
         $this->writeLine('@256');
         $this->writeLine('D=A');
         $this->writeLine('@SP');
         $this->writeLine('M=D');
         $this->writeLine("");
+
+        $this->writeLine('// init LCL pointing to 300');
+        $this->writeLine('@300');
+        $this->writeLine('D=A');
+        $this->writeLine('@LCL');
+        $this->writeLine('M=D');
+        $this->writeLine("");
+
+        $this->writeLine('// init ARG pointing to 400');
+        $this->writeLine('@400');
+        $this->writeLine('D=A');
+        $this->writeLine('@ARG');
+        $this->writeLine('M=D');
+        $this->writeLine("");
+
+        $this->writeLine('// init THIS pointing to 3000');
+        $this->writeLine('@3000');
+        $this->writeLine('D=A');
+        $this->writeLine('@THIS');
+        $this->writeLine('M=D');
+        $this->writeLine("");
+
+        $this->writeLine('// init THAT pointing to 3010');
+        $this->writeLine('@3010');
+        $this->writeLine('D=A');
+        $this->writeLine('@THAT');
+        $this->writeLine('M=D');
+        $this->writeLine("");
     }
+
+    /**
+     * push constant index
+     */
+    protected function writePushPopConstant($command, $index)
+    {
+        if ($command == 'C_PUSH') {
+            $this->writeLine('// constant');
+            $this->writeLine('@' . $index);
+            $this->writeLine('D=A   // Store the numeric value in D');
+            $this->writeLine("");
+            $this->writePush();
+        }
+        // There is no pop constant.
+    }
+
+    /**
+     * push/pop local
+     */
+    protected function writePushPopLocal($command, $index)
+    {
+        $this->writeLine('// local');
+        if ($command == 'C_PUSH') {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePush();
+        } else {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePop();
+        }
+    }
+
+    /**
+     * push/pop argument
+     */
+    protected function writePushPopArgument($command, $index)
+    {
+        $this->writeLine('// argument');
+        if ($command == 'C_PUSH') {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePush();
+        } else {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePop();
+        }
+    }
+
+    /**
+     * push/pop this
+     */
+    protected function writePushPopThis($command, $index)
+    {
+        $this->writeLine('// this');
+        if ($command == 'C_PUSH') {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePush();
+        } else {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePop();
+        }
+    }
+
+    /**
+     * push/pop that
+     */
+    protected function writePushPopThat($command, $index)
+    {
+        $this->writeLine('// that');
+        if ($command == 'C_PUSH') {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePush();
+        } else {
+            // @todo ...
+            $this->writeLine("");
+            $this->writePop();
+        }
+    }
+
 
     /**
      * x+y

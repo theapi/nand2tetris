@@ -1,3 +1,9 @@
+// init to SP pointing to 256
+@256
+D=A
+@SP
+M=D
+
 // constant
 @7
 D=A   // Store the numeric value in D
@@ -20,6 +26,7 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
+//    add
 // POP
 @SP
 M=M-1  // decrement (pop) the stack pointer
@@ -31,7 +38,7 @@ D=M    // the last entered value
 M=M-1  // decrement (pop) the stack pointer
 A=M    // set the address to where the SP is pointing
 
-D=D+M  // add the value to the pervious one
+D=D+M  // x+y
 // PUSH
 @SP
 A=M   // set the address to where the SP is pointing
