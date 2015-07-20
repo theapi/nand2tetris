@@ -39,7 +39,7 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
-// temp
+// segment direct
 // POP
 @SP
 M=M-1  // decrement (pop) the stack pointer
@@ -59,7 +59,7 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
-// temp
+// segment direct
 @1
 D=A    // Store the index value in D
 @R3   // set address to R3
@@ -131,7 +131,7 @@ D=M   // store the value in D
 A=M   // use the value stored in R13 as the next address
 M=D   // store the value at the address
 
-// temp
+// segment direct
 @0
 D=A       // Store the index value in D
 @R3   // set address to R3
@@ -144,7 +144,7 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
-// temp
+// segment direct
 @1
 D=A       // Store the index value in D
 @R3   // set address to R3

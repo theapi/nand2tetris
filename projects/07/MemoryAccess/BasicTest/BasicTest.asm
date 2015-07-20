@@ -201,7 +201,7 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
-// temp
+// segment direct
 @6
 D=A    // Store the index value in D
 @R5   // set address to R5
@@ -362,7 +362,7 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
-// temp
+// segment direct
 @6
 D=A       // Store the index value in D
 @R5   // set address to R5
