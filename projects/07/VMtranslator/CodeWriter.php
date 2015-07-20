@@ -155,9 +155,19 @@ class CodeWriter
             $this->writeLine("");
             $this->writePush();
         } else {
-            // @todo ...
-            $this->writeLine("");
+            // Pop the top of the stack & store it in local[index]
+
+            // Find where to store the value.
+            $this->writeLine('@' . $index);
+            $this->writeLine('D=A    // Store the index value in D');
+            $this->writeLine('@LCL   // set address to LCL');
+            $this->writeLine('D=D+M  // store the address of LCL + index in D');
+
             $this->writePop();
+            // M now countains what was popped off the stack.
+            $this->writeLine('A=D   // set the address to LCL + index');
+            $this->writeLine('M=D   // store the value at the address');
+            $this->writeLine("");
         }
     }
 
