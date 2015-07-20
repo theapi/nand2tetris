@@ -82,6 +82,9 @@ class CodeWriter
             case 'that':
                 $this->writePushPopThat($command, $index);
                 break;
+            case 'temp':
+                $this->writePushPopTemp($command, $index);
+                break;
         }
     }
 
@@ -162,7 +165,7 @@ class CodeWriter
             $this->writeLine('@' . $index);
             $this->writeLine('D=A    // Store the index value in D');
             $this->writeLine("@$label   // set address to $label");
-            $this->writeLine("D=D+M  // store the address of $label + index in D");
+            $this->writeLine("D=D+M  // store the address stored in $label + index in D");
 
             $this->writeLine('@R13  // temp store the address');
             $this->writeLine('M=D   // store the address in R13');
@@ -214,7 +217,6 @@ class CodeWriter
         if ($command == 'C_PUSH') {
             $this->writePushSegment('ARG', $index);
         } else {
-            // Pop the top of the stack & store it in argument[index]
             $this->writePopSegment('ARG', $index);
         }
     }
@@ -228,7 +230,6 @@ class CodeWriter
         if ($command == 'C_PUSH') {
             $this->writePushSegment('THIS', $index);
         } else {
-            // Pop the top of the stack & store it in this[index]
             $this->writePopSegment('THIS', $index);
         }
     }
@@ -242,8 +243,54 @@ class CodeWriter
         if ($command == 'C_PUSH') {
             $this->writePushSegment('THAT', $index);
         } else {
-            // Pop the top of the stack & store it in that[index]
             $this->writePopSegment('THAT', $index);
+        }
+    }
+
+    /**
+     * push/pop temp
+     */
+    protected function writePushPopTemp($command, $index)
+    {
+        // NB this code is slightly different to writePushSegment
+        // in that it directly using the temp registries
+        // rather than the registries pointing to the addresses.
+
+        $label = 'R5'; // the first temp register
+        $this->writeLine('// temp');
+        if ($command == 'C_PUSH') {
+            // Find where the value is stored.
+            $this->writeLine('@' . $index);
+            $this->writeLine('D=A       // Store the index value in D');
+            $this->writeLine("@$label   // set address to $label");
+            $this->writeLine("A=D+A     // set the address to be address of $label + index");
+            $this->writeLine('D=M       // store the push value in D');
+            $this->writePush();
+        } else {
+            if ($index == 0) {
+                $this->writePop();
+                // M now countains what was popped off the stack.
+                $this->writeLine('D=M   // store popped value in D');
+                $this->writeLine("@$label   // set address to $label");
+                $this->writeLine('M=D   // store the value at the address');
+            } else {
+                // Find where to store the value.
+                $this->writeLine('@' . $index);
+                $this->writeLine('D=A    // Store the index value in D');
+                $this->writeLine("@$label   // set address to $label");
+                $this->writeLine("D=D+A  // store the address of $label + index in D");
+
+                $this->writeLine('@R13  // temp store the address');
+                $this->writeLine('M=D   // store the address in R13');
+
+                $this->writePop();
+                // M now countains what was popped off the stack.
+                $this->writeLine('D=M   // store the value in D');
+
+                $this->writeLine('@R13  // R13 address');
+                $this->writeLine('A=M   // use the value stored in R13 as the next address');
+                $this->writeLine('M=D   // store the value at the address');
+            }
         }
     }
 

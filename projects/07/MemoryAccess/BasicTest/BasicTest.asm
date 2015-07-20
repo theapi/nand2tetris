@@ -76,7 +76,7 @@ M=M+1 // Advance the stack pointer
 @2
 D=A    // Store the index value in D
 @ARG   // set address to ARG
-D=D+M  // store the address of ARG + index in D
+D=D+M  // store the address stored in ARG + index in D
 @R13  // temp store the address
 M=D   // store the address in R13
 // POP
@@ -93,7 +93,7 @@ M=D   // store the value at the address
 @1
 D=A    // Store the index value in D
 @ARG   // set address to ARG
-D=D+M  // store the address of ARG + index in D
+D=D+M  // store the address stored in ARG + index in D
 @R13  // temp store the address
 M=D   // store the address in R13
 // POP
@@ -121,7 +121,7 @@ M=M+1 // Advance the stack pointer
 @6
 D=A    // Store the index value in D
 @THIS   // set address to THIS
-D=D+M  // store the address of THIS + index in D
+D=D+M  // store the address stored in THIS + index in D
 @R13  // temp store the address
 M=D   // store the address in R13
 // POP
@@ -160,7 +160,7 @@ M=M+1 // Advance the stack pointer
 @5
 D=A    // Store the index value in D
 @THAT   // set address to THAT
-D=D+M  // store the address of THAT + index in D
+D=D+M  // store the address stored in THAT + index in D
 @R13  // temp store the address
 M=D   // store the address in R13
 // POP
@@ -177,7 +177,7 @@ M=D   // store the value at the address
 @2
 D=A    // Store the index value in D
 @THAT   // set address to THAT
-D=D+M  // store the address of THAT + index in D
+D=D+M  // store the address stored in THAT + index in D
 @R13  // temp store the address
 M=D   // store the address in R13
 // POP
@@ -201,6 +201,22 @@ M=D   // store the value in the stack
 @SP
 M=M+1 // Advance the stack pointer
 
+// temp
+@6
+D=A    // Store the index value in D
+@R5   // set address to R5
+D=D+A  // store the address of R5 + index in D
+@R13  // temp store the address
+M=D   // store the address in R13
+// POP
+@SP
+M=M-1  // decrement (pop) the stack pointer
+A=M    // set the address to where the SP is pointing
+
+D=M   // store the value in D
+@R13  // R13 address
+A=M   // use the value stored in R13 as the next address
+M=D   // store the value at the address
 // local
 @0
 D=A       // Store the index value in D
@@ -339,6 +355,19 @@ M=M-1  // decrement (pop) the stack pointer
 A=M    // set the address to where the SP is pointing
 
 D=M-D  // x-y
+// PUSH
+@SP
+A=M   // set the address to where the SP is pointing
+M=D   // store the value in the stack
+@SP
+M=M+1 // Advance the stack pointer
+
+// temp
+@6
+D=A       // Store the index value in D
+@R5   // set address to R5
+A=D+A     // set the address to be address of R5 + index
+D=M       // store the push value in D
 // PUSH
 @SP
 A=M   // set the address to where the SP is pointing
