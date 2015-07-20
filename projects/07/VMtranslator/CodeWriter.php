@@ -46,6 +46,12 @@ class CodeWriter
                 break;
             case 'not':
                 $this->writeNot();
+            case 'eq':
+                $this->writeEq();
+            case 'gt':
+                $this->writeGt();
+            case 'lt':
+                $this->writeLt();
                 break;
         }
 
@@ -171,6 +177,57 @@ class CodeWriter
         // Get y
         $this->writePop();
         $this->writeLine('D=!D   // !y');
+        $this->writePush();
+    }
+
+    /**
+     * True if x = y, else false
+     */
+    protected function writeEq()
+    {
+        $this->writeLine('//    eq');
+        // Get y
+        $this->writePop();
+        $this->writeLine('D=M    // y');
+        // Get x
+        $this->writePop();
+
+
+
+        $this->writePush();
+    }
+
+    /**
+     * True if x > y, else false
+     */
+    protected function writeGt()
+    {
+        $this->writeLine('//    gt');
+        // Get y
+        $this->writePop();
+        $this->writeLine('D=M    // y');
+        // Get x
+        $this->writePop();
+
+
+
+        $this->writePush();
+    }
+
+    /**
+     * True if x < y, else false
+     */
+    protected function writeLt()
+    {
+        $this->writeLine('//    gt');
+        // Get y
+        $this->writePop();
+        $this->writeLine('D=M    // y');
+        // Get x
+        $this->writePop();
+
+
+
         $this->writePush();
     }
 
