@@ -144,6 +144,9 @@ class CodeWriter
         // There is no pop constant.
     }
 
+    /**
+     * Pop the top of the stack & store it in segment[index]
+     */
     protected function writePopSegment($label, $index)
     {
         if ($index == 0) {
@@ -176,15 +179,28 @@ class CodeWriter
     }
 
     /**
+     * Push the value of segment[index] onto the stack
+     */
+    protected function writePushSegment($label, $index)
+    {
+        // Find where the value is stored.
+        $this->writeLine('@' . $index);
+        $this->writeLine('D=A       // Store the index value in D');
+        $this->writeLine("@$label   // set address to $label");
+        $this->writeLine("A=D+M     // set the address to be $label + index");
+        $this->writeLine('D=M       // store the push value in D');
+        $this->writePush();
+    }
+
+    /**
      * push/pop local
      */
     protected function writePushPopLocal($command, $index)
     {
         $this->writeLine('// local');
         if ($command == 'C_PUSH') {
-
+            $this->writePushSegment('LCL', $index);
         } else {
-            // Pop the top of the stack & store it in local[index]
             $this->writePopSegment('LCL', $index);
         }
     }
@@ -196,8 +212,7 @@ class CodeWriter
     {
         $this->writeLine('// argument');
         if ($command == 'C_PUSH') {
-            // @todo ...
-
+            $this->writePushSegment('ARG', $index);
         } else {
             // Pop the top of the stack & store it in argument[index]
             $this->writePopSegment('ARG', $index);
@@ -211,13 +226,10 @@ class CodeWriter
     {
         $this->writeLine('// this');
         if ($command == 'C_PUSH') {
-            // @todo ...
-            $this->writeLine("");
-            $this->writePush();
+            $this->writePushSegment('THIS', $index);
         } else {
-            // @todo ...
-            $this->writeLine("");
-            $this->writePop();
+            // Pop the top of the stack & store it in this[index]
+            $this->writePopSegment('THIS', $index);
         }
     }
 
@@ -228,16 +240,12 @@ class CodeWriter
     {
         $this->writeLine('// that');
         if ($command == 'C_PUSH') {
-            // @todo ...
-            $this->writeLine("");
-            $this->writePush();
+            $this->writePushSegment('THAT', $index);
         } else {
-            // @todo ...
-            $this->writeLine("");
-            $this->writePop();
+            // Pop the top of the stack & store it in that[index]
+            $this->writePopSegment('THAT', $index);
         }
     }
-
 
     /**
      * x+y

@@ -1,5 +1,8 @@
 
+push constant 21
+pop local 1
 push constant 10
 pop local 0
 push constant 42
 pop local 2
+push local 1
