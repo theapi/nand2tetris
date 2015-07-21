@@ -88,6 +88,9 @@ class CodeWriter
             case 'pointer':
                 $this->writePushPopPointer($command, $index);
                 break;
+            case 'static':
+                $this->writePushPopStatic($command, $index);
+                break;
         }
     }
 
@@ -308,6 +311,14 @@ class CodeWriter
     protected function writePushPopPointer($command, $index)
     {
         $this->writePushPopSegmentDirect('R3', $command, $index);
+    }
+
+    /**
+     * push/pop static
+     */
+    protected function writePushPopStatic($command, $index)
+    {
+        $this->writePushPopSegmentDirect($this->filename . '.' . $index, $command, $index);
     }
 
     /**
