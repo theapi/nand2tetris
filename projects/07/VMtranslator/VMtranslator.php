@@ -15,7 +15,7 @@ class VMtranslator
 
     protected $files = array();
 
-    protected $file;
+    //protected $file;
 
     public function __construct($file)
     {
@@ -28,7 +28,8 @@ class VMtranslator
             $this->filename = $info['filename'];
             $this->dir = $info['dirname'];
             $output_file = $this->dir . '/' . $this->filename . '.asm';
-            $this->file = $file;
+            $this->files[] = $file;
+            //$this->file = $file;
         } else if (is_dir($file)) {
             $this->dir = $file;
             $this->is_dir = true;
@@ -41,7 +42,7 @@ class VMtranslator
             if (empty($this->files)) {
                 throw new Exception('Found no files with a .vm extension');
             }
-            $this->file = array_shift($this->files);
+            //$this->file = array_shift($this->files);
             $info = pathinfo($this->file);
             $this->filename = $info['filename'];
         } else {
@@ -55,35 +56,33 @@ class VMtranslator
     public function run()
     {
         $this->writer->setFileName($this->filename);
-        $parser = new Parser($this->file);
-        while ($parser->hasMoreCommands()) {
-          $parser->advance();
-          $type = $parser->commandType();
-          if (empty($type)) {
-              // Empty line/comment, so advance to the next line.
-              continue;
-          }
 
-          switch($type) {
-              case 'C_ARITHMETIC':
-                  $this->writer->writeArithmatic($parser->arg1());
-                  break;
-              case 'C_PUSH':
-              case 'C_POP':
-                  $this->writer->writePushPop($type, $parser->arg1(), $parser->arg2());
-                  break;
-          }
+        foreach ($this->files as $file) {
+            $parser = new Parser($file);
+            while ($parser->hasMoreCommands()) {
+                $parser->advance();
+                $type = $parser->commandType();
+                if (empty($type)) {
+                    // Empty line/comment, so advance to the next line.
+                    continue;
+                }
 
+                switch ($type) {
+                    case 'C_ARITHMETIC':
+                        $this->writer->writeArithmatic($parser->arg1());
+                        break;
+                    case 'C_PUSH':
+                    case 'C_POP':
+                        $this->writer->writePushPop($type, $parser->arg1(), $parser->arg2());
+                        break;
+                }
+
+            }
+            $parser->close();
         }
-        $parser->close();
 
         $this->writer->close();
     }
 
-    protected function setNextFile()
-    {
-
-    }
-
-
 }
+
