@@ -103,7 +103,9 @@ class CodeWriter
      */
     public function writeLabel($label)
     {
-        // @todo
+        $this->writeLine('// writeLabel ' . $label);
+        $this->writeLine("(@$label)");
+        $this->writeLine("");
     }
 
     /**
@@ -113,7 +115,10 @@ class CodeWriter
      */
     public function writeGoto($label)
     {
-        // @todo
+        $this->writeLine('// writeGoto ' . $label);
+        $this->writeLine("@$label");
+        $this->writeLine("0;JMP");
+        $this->writeLine("");
     }
 
     /**
@@ -123,7 +128,13 @@ class CodeWriter
      */
     public function writeIf($label)
     {
-        // @todo
+        // If the top of stack is NOT zero then Jump.
+        $this->writePop();
+        // M now countains what was popped off the stack.
+        $this->writeLine('D=M   // store popped value in D');
+        $this->writeLine("@$label");
+        $this->writeLine("D;JNE");
+        $this->writeLine("");
     }
 
     /**
@@ -586,7 +597,7 @@ class CodeWriter
         $this->write($asm);
     }
 
-    protected function writeLine($asm)
+    public function writeLine($asm)
     {
         $this->write($asm . "\n");
     }

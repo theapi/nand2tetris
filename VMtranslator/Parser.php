@@ -35,6 +35,11 @@ class Parser
         $this->removeWhitespace();
     }
 
+    public function getCurrentCmd()
+    {
+        return $this->cmd;
+    }
+
     /**
      *
      */
@@ -72,7 +77,7 @@ class Parser
                 return 'C_LABEL';
             case 'goto':
                 return 'C_GOTO';
-            case 'if':
+            case 'if-goto':
                 return 'C_IF';
             case 'function':
                 return 'C_FUNCTION';

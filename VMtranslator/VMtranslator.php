@@ -64,6 +64,9 @@ class VMtranslator
                     continue;
                 }
 
+                $cmd = $parser->getCurrentCmd();
+                $this->writer->writeLine('//** ' . $cmd . ' **//');
+
                 switch ($type) {
                     case 'C_ARITHMETIC':
                         $this->writer->writeArithmatic($parser->arg1());
@@ -72,8 +75,27 @@ class VMtranslator
                     case 'C_POP':
                         $this->writer->writePushPop($type, $parser->arg1(), $parser->arg2());
                         break;
+                    case 'C_LABEL':
+                        $this->writer->writeLabel($parser->arg1());
+                        break;
+                    case 'C_GOTO':
+                        $this->writer->writeGoto($parser->arg1());
+                        break;
+                    case 'C_IF':
+                        $this->writer->writeIf($parser->arg1());
+                        break;
+                    case 'C_FUNCTION':
+                        $this->writer->writeFunction($parser->arg1(), $parser->arg2());
+                        break;
+                    case 'C_RETURN':
+                        $this->writer->writeReturn();
+                        break;
+                    case 'C_CALL':
+                        $this->writer->writeCall($parser->arg1(), $parser->arg2());
+                        break;
                 }
 
+                $this->writer->writeLine('');
             }
             $parser->close();
         }
