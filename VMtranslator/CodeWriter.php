@@ -104,7 +104,7 @@ class CodeWriter
     public function writeLabel($label)
     {
         $this->writeLine('// writeLabel ' . $label);
-        $this->writeLine("(@$label)");
+        $this->writeLine("($label)");
         $this->writeLine("");
     }
 

@@ -26,7 +26,7 @@ M=D   // store the value at the address
 
 //** label LOOP_START **//
 // writeLabel LOOP_START
-(@LOOP_START)
+(LOOP_START)
 
 
 //** push argument 0 **//
